@@ -36,5 +36,7 @@ tools/ci.sh                      # shellcheck, build, unit tests (what CI runs)
   connection problems, *Settings → Connection log*.
 - **Security issues** (a leak, one profile seeing another, a key outliving its revocation): privately, see [SECURITY.md](SECURITY.md).
 
-By contributing you agree that your contribution is licensed under the [MIT License](LICENSE) and follow our
-[Code of Conduct](CODE_OF_CONDUCT.md).
+By contributing you agree to follow our [Code of Conduct](CODE_OF_CONDUCT.md). You license your contribution to everyone
+under the [GNU AGPL v3.0 or later](LICENSE). You also grant the project's author a perpetual, worldwide, royalty-free
+license to use, change and distribute it under other terms as well: in the App Store and under the commercial license (see
+the README). This keeps the project able to publish the app and to offer both licenses.

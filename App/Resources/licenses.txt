@@ -1,3 +1,6 @@
+IP Browser — Copyright © 2026 viktorvich. Free software under the GNU Affero General Public License v3.0 or later,
+WITHOUT ANY WARRANTY. Source code: https://github.com/viktorvich/ip-browser
+
 IP Browser uses these open-source components. Thank you to their authors.
 
 Xray-core 26.11.9 — Mozilla Public License 2.0. Source: https://github.com/XTLS/Xray-core

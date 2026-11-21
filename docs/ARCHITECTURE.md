@@ -47,5 +47,5 @@ A user script injected at document start into every frame removes `RTCPeerConnec
 
 ## Choices
 - **In-app core, not a system VPN** (Network Extension): only the browser's traffic, no conflict with the person's VPN apps.
-- **Xray-core through libXray** (MPL-2.0/MIT): one engine for both kinds. GPL cores were not used.
+- **Xray-core through libXray** (MPL-2.0/MIT): one engine for both kinds. No GPL core (such as sing-box): its code would rule out the commercial license.
 - **Only public APIs.** No private WebKit selectors, no swizzling.

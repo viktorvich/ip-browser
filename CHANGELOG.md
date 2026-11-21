@@ -4,6 +4,9 @@
 
 The first public version.
 
+- **License**: dual: open source under the GNU AGPL v3.0 or later, plus a commercial license on request. The name and icon
+  are not licensed. The source published before 21.11.2026 was under MIT.
+
 - **Browser**: start page with favorites and recent sites, tabs with previews, bookmarks and history on the phone, find on
   page, share, downloads; Russian and English.
 - **One exit**: an in-app Xray core with no direct outbound behind a loopback gate WebKit cannot bypass; every masked kind's

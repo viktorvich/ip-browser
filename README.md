@@ -14,7 +14,8 @@
   <img src="https://img.shields.io/badge/Swift-5-F05138?logo=swift&logoColor=white" alt="Swift 5">
   <img src="https://img.shields.io/badge/core-Xray--core%2026.11-6f42c1" alt="Xray-core">
   <img src="https://img.shields.io/badge/server-Hysteria%202%20%C2%B7%20XHTTP-0a7bbb" alt="Hysteria 2 and XHTTP">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="AGPL-3.0"></a>
+  <a href="https://opensource.org/license/agpl-v3"><img src="https://img.shields.io/badge/open%20source-OSI%20approved-3DA639?logo=opensourceinitiative&logoColor=white" alt="Open Source, OSI approved"></a>
 </p>
 
 <p align="center">
@@ -244,4 +245,14 @@ IP Browser stands on [Xray-core](https://github.com/XTLS/Xray-core) and [libXray
 
 ## License
 
-[MIT](LICENSE). Bundled components keep their own licenses (MPL-2.0, MIT, Apache-2.0, BSD).
+IP Browser is open source and dual-licensed:
+
+1. **Open source:** the [GNU Affero General Public License v3.0 or later](LICENSE) (AGPL-3.0-or-later). Anyone may use, study,
+   change and share it. A modified version you give to others, as an app or as a network service, must come with its complete
+   source under the same license.
+2. **Commercial:** a separate license is available to anyone who cannot meet the AGPL, for example a closed-source product. Ask
+   in [issues](https://github.com/viktorvich/ip-browser/issues).
+
+Copyright © 2026 viktorvich. The name "IP Browser" and its icon are not covered by either license: a modified version must
+use its own name and icon. Versions published before 21 November 2026 carry the MIT License. Bundled components keep their own
+licenses (MPL-2.0, MIT, Apache-2.0, BSD, LGPL-3.0 with a static-linking exception).
