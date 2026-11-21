@@ -1,0 +1,24 @@
+IP Browser opens every website through your own server. Websites see one address — your server's — and nothing else leaves your phone.
+
+A REAL BROWSER
+A start page with favorites and recent sites, tabs with page previews, bookmarks and history (kept on your phone only), find on page and sharing. Your server, protection and data controls live in Settings.
+
+SET UP YOUR SERVER IN A FEW TAPS
+Rent any small VPS with Ubuntu or Debian, enter its address and password, tap Install. IP Browser connects to it, sets everything up and forgets the password. Or add a key someone gave you, as text or a QR code.
+
+ONE ADDRESS, ALWAYS
+• Pages, their name lookups and downloads go only through your server.
+• If the server cannot be reached, the browser stops — it never falls back to your own connection.
+• Before the first page, IP Browser checks which address websites see.
+• Works next to any other VPN app, on Wi-Fi or mobile data.
+
+A DISGUISED CONNECTION
+Your server gets two kinds of encrypted, disguised connection, and the app picks the one that works: a fast UDP tunnel with port hopping, and a TCP tunnel behind a small real website. If your network blocks one, the app tells you which and why.
+
+BUILT-IN LEAK TEST
+WebRTC, WebTransport and passkey lookups can bypass a browser's proxy. IP Browser removes them in every frame and lets you check the result: Settings → Leak test.
+
+NO ACCOUNTS, NO ANALYTICS
+No sign-up, no tracking, no ads, and no servers of ours: the app talks to your server and the websites you open.
+
+Open source: github.com/viktorvich/ip-browser

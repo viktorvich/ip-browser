@@ -1,0 +1,19 @@
+IP Browser — Privacy Policy
+
+IP Browser has no accounts, no analytics, no advertising and no servers of its developer in the path of your browsing.
+
+What the app stores, on your device only: the servers you add (address, keys), each profile's website data (cookies, storage), history, favorites, tabs, the connection log and settings. Keys are kept in the iOS Keychain of this device only. Website data, history, favorites, tabs and the connection log are excluded from iCloud and computer backups; settings (search engine, switches) may be backed up by iOS.
+
+Where your traffic goes: websites, their name lookups and downloads go only to the server you configured — your own server, or a server whose owner gave you a key. That server's owner can see which websites you connect to (not the content of HTTPS pages). The developer of IP Browser receives nothing.
+
+When you install a server: the app connects to the address you entered over SSH, uses your password once to install the software and adds its own key for managing that server later. The password is not stored.
+
+What the app checks: after connecting, after every network change, every 10 minutes and when one connection kind stops answering, the app asks a public address service (checkip.amazonaws.com, api.ipify.org) through your server — once through each connection kind of that server — which address websites see. Apart from these and the time-zone services below, the app contacts no service in the background.
+
+Time zone: the first time a server's address is seen, the app asks a public service (ipapi.co, or ipwho.is, or api.ip.sb) through your server which country and time zone that address is in, and keeps the answer on the phone (the country names the profile). Websites then see the server's time zone instead of the phone's (Settings → Server's time zone turns this off). The phone's own clock does not change. Websites do not get your location: the app never asks iOS for it.
+
+Not routed through your server: system services of iOS itself (Apple software updates, certificate status checks, Apple's content lists) use your normal network.
+
+Camera: used only to scan an access QR code, the image is not saved. Photos: an image you attach on a website — from Photos or from Files — is re-encoded without location and camera data; other files go as they are.
+
+Delete everything: delete the app, or remove a server in Servers and clear website data in Settings.

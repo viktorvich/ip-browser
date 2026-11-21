@@ -1,0 +1,21 @@
+name: Idea
+description: Suggest an improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you like to do that you cannot do now?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: How could it work?
+  - type: checkboxes
+    id: promise
+    attributes:
+      label: The one promise
+      options:
+        - label: This keeps «websites see only my server, nothing leaves another way» true
+          required: true

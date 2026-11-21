@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IP Browser · self-test</title>
+<style>
+ body{font:15px -apple-system,system-ui;margin:16px;color:#111;background:#fff}
+ @media (prefers-color-scheme:dark){body{color:#eee;background:#111}}
+ h1{font-size:20px;margin:0 0 8px} .ok{color:#0a7d5a} .bad{color:#c62828} .row{margin:6px 0}
+ pre{white-space:pre-wrap;font:12px ui-monospace,monospace;opacity:.8}
+ iframe{display:none}
+</style></head>
+<body>
+<h1 id="title">Проверка утечек</h1>
+<div id="summary">…</div>
+<details><summary id="more" style="opacity:.6;margin-top:12px">Подробности для специалиста</summary><pre id="detail"></pre></details>
+<script>
+// Everything here runs locally inside the browser; the only network requests are
+// the STUN attempts (they must NOT happen) and the exit-address fetch (through the tunnel).
+const FACTS = Object.fromEntries(new URLSearchParams(location.hash.slice(1)));
+const R = window.__selftest = {contexts: {}, candidates: [], errors: [], done: false, facts: FACTS};
+// The page speaks the app's language (FACTS.lang), Russian or English.
+const EN = FACTS.lang === 'en';
+const T = (ru, en) => EN ? en : ru;
+document.documentElement.lang = EN ? 'en' : 'ru';
+document.getElementById('title').textContent = T('Проверка утечек', 'Leak test');
+document.getElementById('more').textContent = T('Подробности для специалиста', 'Details for a specialist');
+document.getElementById('summary').textContent = T('Проверяем WebRTC, WebTransport, ключи доступа, часы, геопозицию и адрес выхода…',
+  'Checking WebRTC, WebTransport, passkeys, the clock, location and the exit address…');
+const STUN = [{urls: 'stun:stun.l.google.com:19302'}, {urls: 'stun:stun.cloudflare.com:3478'}];
+function clock(w) { try { return {z: new w.Intl.DateTimeFormat().resolvedOptions().timeZone, o: new w.Date().getTimezoneOffset(), h: new w.Date(Date.UTC(2026, 0, 15, 12)).getHours()}; } catch (e) { return {z: 'error ' + e}; } }
+function probe(w) { return Object.assign({rtc: typeof w.RTCPeerConnection, wrtc: typeof w.webkitRTCPeerConnection, wt: typeof w.WebTransport, pkc: typeof w.PublicKeyCredential}, clock(w)); }
+function gather(PC, label) {
+  if (typeof PC !== 'function') return;
+  try {
+    const pc = new PC({iceServers: STUN}); pc.createDataChannel('x');
+    pc.onicecandidate = e => { if (e.candidate && e.candidate.candidate) R.candidates.push(label + ': ' + e.candidate.candidate); };
+    pc.createOffer().then(o => pc.setLocalDescription(o)).catch(e => R.errors.push(label + ' offer ' + e));
+    setTimeout(() => { try { pc.close(); } catch (e) {} }, 6000);
+  } catch (e) { R.errors.push(label + ' ' + e); }
+}
+const CHILD = ctx => "<script>(function(){var p={rtc:typeof RTCPeerConnection,wt:typeof WebTransport,pkc:typeof PublicKeyCredential,z:new Intl.DateTimeFormat().resolvedOptions().timeZone,o:new Date().getTimezoneOffset(),h:new Date(Date.UTC(2026,0,15,12)).getHours()};parent.postMessage({ctx:'" + ctx + "',p:p},'*');"
+  + "if(typeof RTCPeerConnection==='function'){try{var pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});pc.createDataChannel('x');"
+  + "pc.onicecandidate=function(e){if(e.candidate&&e.candidate.candidate)parent.postMessage({ctx:'" + ctx + "',c:e.candidate.candidate},'*')};"
+  + "pc.createOffer().then(function(o){return pc.setLocalDescription(o)})}catch(e){parent.postMessage({ctx:'" + ctx + "',err:String(e)},'*')}}})()<\/script>";
+window.addEventListener('message', e => {
+  const m = e.data; if (!m || !m.ctx) return;
+  if (m.p) R.contexts[m.ctx] = m.p;
+  if (m.c) R.candidates.push(m.ctx + ': ' + m.c);
+  if (m.err) R.errors.push(m.ctx + ' ' + m.err);
+});
+R.contexts.main = probe(window); gather(window.RTCPeerConnection, 'main');
+</script>
+<iframe id="static"></iframe>
+<script>
+try { const w = window.frames[0]; R.contexts.staticFrame = probe(w); gather(w.RTCPeerConnection, 'staticFrame'); } catch (e) { R.errors.push('staticFrame ' + e); }
+try { const f = document.createElement('iframe'); document.body.appendChild(f); R.contexts.dynamicFrame = probe(f.contentWindow); gather(f.contentWindow.RTCPeerConnection, 'dynamicFrame'); } catch (e) { R.errors.push('dynamicFrame ' + e); }
+try {
+  // Insert with ANOTHER realm's untouched appendChild, then reach it by index.
+  const realm = window.frames[0];
+  const f = document.createElement('iframe');
+  realm.Node.prototype.appendChild.call(document.body, f);
+  const w = window[window.length - 1];
+  R.contexts.crossRealm = probe(w); gather(w.RTCPeerConnection, 'crossRealm');
+} catch (e) { R.errors.push('crossRealm ' + e); }
+try { const f = document.createElement('iframe'); f.srcdoc = CHILD('srcdoc'); document.body.appendChild(f); } catch (e) { R.errors.push('srcdoc ' + e); }
+try { const f = document.createElement('iframe'); f.setAttribute('sandbox', 'allow-scripts'); f.srcdoc = CHILD('sandboxed'); document.body.appendChild(f); } catch (e) { R.errors.push('sandboxed ' + e); }
+try { const f = document.createElement('iframe'); f.src = 'data:text/html,' + encodeURIComponent(CHILD('dataURL')); document.body.appendChild(f); } catch (e) { R.errors.push('dataURL ' + e); }
+try { const f = document.createElement('iframe'); f.src = URL.createObjectURL(new Blob([CHILD('blobURL')], {type: 'text/html'})); document.body.appendChild(f); } catch (e) { R.errors.push('blobURL ' + e); }
+try {
+  const w = new Worker(URL.createObjectURL(new Blob(['postMessage({wt: typeof WebTransport, z: new Intl.DateTimeFormat().resolvedOptions().timeZone, o: new Date().getTimezoneOffset(), h: new Date(Date.UTC(2026, 0, 15, 12)).getHours()})'], {type: 'text/javascript'})));
+  w.onmessage = e => { R.contexts.worker = e.data; w.terminate(); };
+} catch (e) { R.errors.push('worker ' + e); }
+// The clock pages see: the server's zone (or the phone's, if chosen in Settings), the same in every context.
+const ZONE = FACTS.zone || FACTS.phone || null;
+function offsetOf(zone, t) {
+  try { const n = new Intl.DateTimeFormat('en-US', {timeZone: zone, timeZoneName: 'longOffset'}).formatToParts(t).find(p => p.type === 'timeZoneName').value;
+    const m = /GMT(?:([+-])(\d\d):(\d\d))?/.exec(n); return m && m[1] ? -(m[1] === '-' ? -1 : 1) * (+m[2] * 60 + +m[3]) : 0; } catch (e) { return null; }
+}
+R.clock = {expected: ZONE, offset: ZONE ? offsetOf(ZONE, Date.now()) : null, text: String(new Date()), ua: navigator.userAgent};
+// Location: WebKit asks iOS, and IP Browser never asks for location, so a page gets «denied».
+R.geo = 'pending';
+try { navigator.geolocation.getCurrentPosition(() => { R.geo = 'allowed'; }, e => { R.geo = 'denied:' + e.code; }, {timeout: 5000, maximumAge: 0}); } catch (e) { R.geo = 'absent'; }
+// Profiles are separate browsers: this page's own storage must only ever have seen this profile.
+let storedProfile = null, storageOk = true;
+try { storedProfile = localStorage.getItem('ipb-profile'); if (!storedProfile && FACTS.profile) localStorage.setItem('ipb-profile', FACTS.profile); } catch (e) { storageOk = false; R.errors.push('storage ' + e); }
+R.profile = {now: FACTS.profile || null, stored: storedProfile};
+fetch('https://api.ipify.org/?format=json', {cache: 'no-store'}).then(r => r.json()).then(j => { R.exit = j.ip; }).catch(e => R.errors.push('exit ' + e));
+setTimeout(() => {
+  const ctx = Object.entries(R.contexts);
+  // WebTransport left in a worker is harmless only where WebKit refuses it through a proxy (iOS 27+, proven).
+  const wtSafe = FACTS.wtProxySafe === '1';
+  const exposed = ctx.filter(([k, v]) => v.rtc === 'function' || v.wrtc === 'function' || (v.wt === 'function' && !wtSafe) || v.pkc === 'function').map(([k]) => k);
+  const leaks = R.candidates.filter(c => / typ (srflx|relay|prflx) /.test(c));
+  const noon = ZONE ? new Date(Date.UTC(2026, 0, 15, 12) - offsetOf(ZONE, Date.UTC(2026, 0, 15, 12)) * 60000).getUTCHours() : null;
+  const offClock = ZONE ? ctx.filter(([k, v]) => v.z !== undefined && (v.z !== ZONE || v.o !== R.clock.offset || v.h !== noon)).map(([k]) => k) : [];
+  // Location: «denied» or no API = closed; still waiting after 8 s = not measured (said so).
+  const geo = R.geo === 'allowed' ? 'bad' : (R.geo === 'pending' ? 'open' : 'ok');
+  const safari = / Version\/\d+[.\d]* Mobile\/\w+ Safari\//.test(navigator.userAgent);
+  // Site data: measured only if this page could use its storage.
+  const ownData = !FACTS.profile ? null : (!storageOk ? 'unknown' : (!storedProfile || storedProfile === FACTS.profile ? 'ok' : 'bad'));
+  // The address the site saw must be the profile's own exit, not just any answer.
+  const expected = FACTS.exit || null;
+  const exitState = !R.exit ? 'none' : (!expected || R.exit === expected ? 'ok' : 'bad');
+  R.verdict = {exposed, leaks: leaks.length, candidates: R.candidates.length, contexts: ctx.length, exit: R.exit || null, expected, exitState, offClock, geo: R.geo, safari, ownData};
+  const clean = exposed.length === 0 && R.candidates.length === 0 && exitState !== 'bad';
+  const ok = t => '<div class="ok row">✓ ' + t + '</div>', bad = t => '<div class="bad row">✗ ' + t + '</div>',
+        open = t => '<div class="row" style="color:#c77700">? ' + t + '</div>', row = t => '<div class="row">' + t + '</div>';
+  const verdict = !clean ? bad(exitState === 'bad' ? T('Сайт увидел не адрес сервера', 'The site saw an address that is not the server\'s') : T('Найдены открытые пути', 'Open paths found'))
+    : exitState === 'ok' ? ok(T('Утечек не найдено', 'No leaks found'))
+    : open(T('Утечек не найдено, но сервер сейчас не отвечает — адрес выхода проверить нельзя. Ничего не уходит мимо сервера.',
+             'No leaks found, but the server does not answer now, so the exit address cannot be checked. Nothing leaves past the server.'));
+  document.getElementById('summary').innerHTML = verdict
+    + row(T('Адрес выхода: ', 'Exit address: ') + '<b>' + (R.exit || '—') + '</b>'
+        + (exitState === 'ok' && expected ? T(' — адрес сервера профиля', ' — the profile\'s server') : '')
+        + (exitState === 'bad' ? T(', ожидался ', ', expected ') + expected : ''))
+    + (ZONE ? (offClock.length ? bad(T('Часы различаются в: ', 'The clock differs in: ') + offClock.join(', '))
+        : ok(T('Часы для сайтов: ', 'Clock for websites: ') + ZONE + (FACTS.zone ? T(' — как у сервера', ' — the server\'s') : T(' — как на телефоне', ' — the phone\'s'))
+             + T(', одинаково во всех проверенных окружениях', ', the same in every context checked'))) : '')
+    + (geo === 'ok' ? ok(T('Геопозиция закрыта', 'Location is closed')) : geo === 'bad' ? bad(T('Сайт получил геопозицию', 'The site got the location'))
+        : open(T('Геопозиция: ответа нет за 8 с — не измерено', 'Location: no answer within 8 s — not measured')))
+    + (safari ? ok(T('Для сайтов это Safari на iPhone', 'Websites see Safari on iPhone')) : bad(T('Сайты видят встроенный браузер, а не Safari', 'Websites see an embedded browser, not Safari')))
+    + (ownData === 'ok' ? ok(T('Данные сайтов — только профиля «', 'Site data belongs to profile «') + (FACTS.pname || '') + T('», другие профили их не видят', '» only; other profiles do not see it'))
+        : ownData === 'bad' ? bad(T('Данные сайтов смешаны с другим профилем', 'Site data is mixed with another profile'))
+        : ownData === 'unknown' ? open(T('Данные сайтов: хранилище страницы недоступно — не измерено', 'Site data: the page storage is unavailable — not measured')) : '')
+    + row(T('Проверено окружений: ', 'Contexts checked: ') + ctx.length + T('; WebRTC-кандидатов: ', '; WebRTC candidates: ') + R.candidates.length)
+    + row('iOS ' + (FACTS.ios || '?') + (FACTS.strict === '1' ? T(' · строгий режим', ' · strict mode') : '') + (wtSafe ? T(' · WebTransport через прокси WebKit не пускает', ' · WebKit refuses WebTransport through a proxy') : ''))
+    + (exposed.length ? bad(T('Доступно в: ', 'Available in: ') + exposed.join(', ')) : '');
+  document.getElementById('detail').textContent = JSON.stringify(R, null, 1);
+  R.done = true;
+}, 8000);
+</script>
+</body></html>

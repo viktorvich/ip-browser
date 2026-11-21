@@ -1,0 +1,19 @@
+IP Browser uses these open-source components. Thank you to their authors.
+
+Xray-core 26.11.9 — Mozilla Public License 2.0. Source: https://github.com/XTLS/Xray-core
+  The Covered Software is available in Source Code Form at the address above; IP Browser does not modify it.
+libXray 26.11.9 — MIT License. Source: https://github.com/XTLS/libXray
+SwiftNIO, SwiftNIO SSH, Swift Crypto, Swift Atomics, Swift Collections, Swift System, Swift ASN.1 — Apache License 2.0.
+  Copyright Apple Inc. and the SwiftNIO / Swift Crypto project authors. https://github.com/apple
+Go standard library and golang.org/x packages — BSD 3-Clause License. https://go.dev/LICENSE
+quic-go — MIT License. https://github.com/quic-go/quic-go
+Other Go modules linked into Xray-core keep their own MIT, BSD or Apache 2.0 licenses; see https://github.com/XTLS/Xray-core/blob/main/go.mod
+
+Installed on YOUR server by the setup (not part of this app):
+Hysteria 2.14.0 — MIT License. https://github.com/apernet/hysteria
+Xray-core 26.11.9 — Mozilla Public License 2.0. https://github.com/XTLS/Xray-core
+Caddy 2.11.9 — Apache License 2.0. https://github.com/caddyserver/caddy
+
+The full license and notice texts of every component compiled into this app follow below
+(generated from the exact sources of this build by tools/licenses.sh; e-mail addresses of
+people in copyright lines are left out, each original file is at the source named in its heading).

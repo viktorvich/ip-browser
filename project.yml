@@ -1,0 +1,91 @@
+name: IPBrowser
+options:
+  bundleIdPrefix: app.ipbrowser
+  deploymentTarget: { iOS: "18.4" }
+  createIntermediateGroups: true
+packages:
+  swift-nio: { url: https://github.com/apple/swift-nio.git, exactVersion: "2.105.0" }
+  swift-nio-ssh: { url: https://github.com/apple/swift-nio-ssh.git, exactVersion: "0.15.1" }
+  swift-crypto: { url: https://github.com/apple/swift-crypto.git, exactVersion: "3.15.1" }
+settings:
+  base:
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1"
+targets:
+  IPBrowser:
+    type: application
+    platform: iOS
+    sources:
+      - path: App/Sources
+      - path: App/Resources
+        excludes: ["zone.js"]
+      - path: App/Resources/zone.js
+        buildPhase: resources
+      - path: App/Assets.xcassets
+      - path: App/PrivacyInfo.xcprivacy
+        buildPhase: resources
+      - path: Server/install.sh
+        buildPhase: resources
+    dependencies:
+      - framework: Vendor/LibXray.xcframework
+        embed: false
+      - package: swift-nio
+        product: NIOCore
+      - package: swift-nio
+        product: NIOPosix
+      - package: swift-nio-ssh
+        product: NIOSSH
+      - package: swift-crypto
+        product: Crypto
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.ipbrowser.pos2
+        TARGETED_DEVICE_FAMILY: "1"   # an iPhone app (XcodeGen's application preset says "1,2")
+        PRODUCT_NAME: IPBrowser
+        INFOPLIST_FILE: App/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        OTHER_LDFLAGS: ["-lresolv"]
+        SWIFT_OPTIMIZATION_LEVEL: "-O"
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_BITCODE: NO
+        DEAD_CODE_STRIPPING: YES
+        STRIP_INSTALLED_PRODUCT: YES
+        LOCALIZATION_PREFERS_STRING_CATALOGS: NO
+      configs:
+        Debug:
+          ENABLE_TESTABILITY: YES
+  IPBrowserTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [Tests/IPBrowserTests]
+    dependencies:
+      - target: IPBrowser
+      # a real SSH server inside the tests (SSHHostKeyTests)
+      - package: swift-nio
+        product: NIOCore
+      - package: swift-nio
+        product: NIOPosix
+      - package: swift-nio-ssh
+        product: NIOSSH
+      - package: swift-crypto
+        product: Crypto
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: app.ipbrowser.tests
+schemes:
+  IPBrowser:
+    build:
+      targets:
+        IPBrowser: all
+        IPBrowserTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets: [IPBrowserTests]
+    archive:
+      config: Release

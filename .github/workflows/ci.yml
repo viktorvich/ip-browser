@@ -1,0 +1,34 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  server:
+    name: Server scripts
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash -n Server/install.sh Server/test/lifecycle.sh tools/*.sh
+      - run: shellcheck -x Server/install.sh Server/test/lifecycle.sh tools/*.sh
+  app:
+    name: App build and unit tests
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.4"
+      - name: LibXray (pinned, cached by its build script)
+        id: libxray
+        uses: actions/cache@v4
+        with:
+          path: Vendor/LibXray.xcframework
+          key: libxray-${{ hashFiles('tools/build-libxray.sh') }}
+      - if: steps.libxray.outputs.cache-hit != 'true'
+        run: tools/build-libxray.sh
+      - run: brew install xcodegen
+      - run: tools/ci.sh

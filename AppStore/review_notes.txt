@@ -1,0 +1,16 @@
+IP Browser is a web browser (WKWebView) that routes its own web traffic through a server the user owns. It is not a system VPN: it does not use NEVPNManager or a Network Extension, and it does not change the device's network for other apps.
+
+How to test:
+1. Launch the app. On the home screen tap «I have a key or QR».
+2. Tap Paste with the review key below in the clipboard (or type it under «Type or edit the key»), then Add.
+3. Once the exit is verified, the start page shows «Sites see only <address>» and the shield in the address bar turns green. Open any favorite or type an address.
+4. Settings → Leak test shows the address websites see and that WebRTC/WebTransport are not reachable.
+
+Review key (a test server operated by the developer for App Review; revoked after review):
+<REVIEW KEY>   (pasted in App Store Connect only - never committed; see SUBMISSION.md)
+
+The «Install on my server» flow needs a fresh VPS with a root password; it connects over SSH, installs open-source software from GitHub (Hysteria, Xray-core, Caddy) and stores no password.
+
+The app has no accounts, no analytics and no backend of its own. Encryption: standard algorithms (TLS 1.3, QUIC, VLESS Encryption with ML-KEM-768/X25519) for the tunnel to the user's server.
+
+IPv6-only networks: on a NAT64 network the app dials the server through the IPv6 address iOS synthesizes for it.

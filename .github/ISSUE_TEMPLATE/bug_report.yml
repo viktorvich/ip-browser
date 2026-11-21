@@ -1,0 +1,50 @@
+name: Bug report
+description: Something does not work as described
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **A leak or a way around the tunnel?** Please do not file it here — report it privately (Security tab → Report a vulnerability).
+        Never paste an access key, a server password or your server's address.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Servers → Install on my server …"
+  - type: input
+    id: build
+    attributes:
+      label: App version and build (Settings → About)
+      placeholder: "1.0.0 (22)"
+    validations:
+      required: true
+  - type: input
+    id: ios
+    attributes:
+      label: iOS version and iPhone model
+    validations:
+      required: true
+  - type: dropdown
+    id: network
+    attributes:
+      label: Network
+      multiple: true
+      options: [Wi-Fi, Mobile data, Another VPN app is on, IPv6-only network]
+  - type: input
+    id: server
+    attributes:
+      label: Server system (if it is about installing)
+      placeholder: "Debian 13, x86_64"
+  - type: textarea
+    id: log
+    attributes:
+      label: Connection log or leak test result
+      description: Settings → Connection log → Share (the shared copy hides every address). From the leak test's details, remove the addresses before pasting.
+      render: text

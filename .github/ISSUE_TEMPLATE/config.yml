@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security issue (a leak, a way around the tunnel)
+    url: https://github.com/viktorvich/ip-browser/security/advisories/new
+    about: Report privately, please — never in a public issue.
+  - name: How it works
+    url: https://github.com/viktorvich/ip-browser/blob/main/docs/ARCHITECTURE.md
+    about: The route, the server, the leak measurements.

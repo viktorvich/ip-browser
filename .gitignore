@@ -1,0 +1,8 @@
+Vendor/
+build/
+DerivedData/
+*.xcodeproj/
+*.ipa
+.DS_Store
+xcuserdata/
+private/
