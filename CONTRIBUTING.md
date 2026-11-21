@@ -4,10 +4,10 @@ Thank you for helping. IP Browser has one promise — **websites see only your s
 way** — and every change is judged by it first.
 
 ## Ground rules
-- **No way around the tunnel.** No direct outbound in the core, no proxy failover, nothing that lets WebKit reach the network
+- **No way around the server.** No direct outbound in the core, no failover in WebKit, nothing that lets WebKit reach the network
   around LocalGate. A feature that needs one is not taken.
-- **Masked kinds only.** HOP (Hysteria 2 + Salamander) and XHTTP (VLESS Encryption over XHTTP/TLS). Plain Hysteria, plain
-  VLESS, REALITY or anything recognisable on the wire is refused by design (`AccessKey.requireMasked`).
+- **Two supported connections only.** UDP (Hysteria 2 with Salamander) and TCP (VLESS Encryption over XHTTP/TLS). Any other
+  key is refused by design (`AccessKey.requireMasked`).
 - **No telemetry, no accounts, no servers of ours.** The app talks to the person's server and the sites they open.
 - **Public APIs only.** No private WebKit selectors, no swizzling — the app must pass App Review.
 - **The server script stays small and reversible.** Whatever `install` adds, `uninstall` removes; administrator's own rules and

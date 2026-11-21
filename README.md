@@ -5,7 +5,7 @@
 <h1 align="center">IP Browser</h1>
 
 <p align="center">
-  <b>A private iPhone browser that goes through your own server.<br>Web pages and downloads go through the server you chose; if its verified route is unavailable, the browser waits.</b>
+  <b>An iPhone browser that opens every website from your own server's IP address.<br>Pages and downloads leave only from the server you chose; if it is unavailable, the browser waits.</b>
 </p>
 
 <p align="center">
@@ -39,10 +39,10 @@
 
 ## Why
 
-A VPN app moves your whole phone to another country — mail, messengers, banking, everything — and most of them fall back to
-your real address the moment the tunnel blinks. A browser with a proxy setting leaks your real address through WebRTC and
-friends. What you often want is narrower and stricter: **one browser that is always «in» one country, never shows your real
-address, and keeps that country's logins apart from everything else** — while the rest of the phone stays as it is.
+Some services let you in only from one IP address: an office allowlist, a hosting panel, an account that locks itself when
+the address changes. Others show what they show by country. What you want then is narrow and strict: **one browser that
+always uses one address — your server's — never your own, and keeps those logins apart from everything else**, while the rest
+of the phone stays as it is.
 
 IP Browser is that browser. You give it a server (any small VPS), it sets the server up by itself in about half a minute, and
 from then on every page it opens leaves from that server's address — or does not leave at all.
@@ -51,14 +51,14 @@ from then on every page it opens leaves from that server's address — or does n
 
 - 🧭 **A browser first.** Start page with favorites and recent sites, tabs with previews, bookmarks and history (on the phone
   only), find on page, share, downloads. Server, protection and the rest live in **Settings**.
-- 🔒 **One exit, enforced.** Web pages and downloads go through the server you chose. The tunnel core inside the app has no
-  direct route to the internet and WebKit's proxy has no fallback: if the verified route is unavailable, the browser waits.
+- 🔒 **One address, enforced.** Web pages and downloads go through the server you chose. The connection core inside the app
+  has no direct route to the internet and WebKit has no fallback: if the verified route is unavailable, the browser waits.
 - ⚡ **Your server in half a minute.** Type the server's address and root password, tap **Install**. The app connects over
-  SSH, installs the tunnel, gets a certificate, and forgets the password. Measured on a fresh Debian 13 VPS: 30 seconds.
-- 🥷 **A disguised tunnel, two kinds, switched for you.**
-  **HOP** — Hysteria 2 with Salamander obfuscation over UDP with port hopping; **XHTTP** — VLESS Encryption (ML-KEM-768)
-  over XHTTP behind a small real website on TCP 443. Each kind must prove it leaves from the server's address before it may
-  carry a page. If UDP is cut while you browse, new pages move to TCP by themselves (≈2 s for a new site).
+  SSH, installs its server part, gets a certificate, and forgets the password. Measured on a fresh Debian 13 VPS: 30 seconds.
+- 🔁 **Two connections, switched for you.**
+  **UDP** — Hysteria 2 with port hopping; **TCP** — VLESS Encryption (ML-KEM-768) over XHTTP on TCP 443, next to a small
+  website with its own certificate. Each must prove it leaves from the server's address before it may carry a page. If UDP
+  stops while you browse, new pages move to TCP by themselves (≈2 s for a new site).
 - 🗂️ **A profile per server — separate browsers in one app.** 🇬🇧 United Kingdom, 🇫🇮 Finland, 🇺🇸 USA… named by their
   country automatically. Each has its own sign-ins, cookies and site data, tabs, favorites, history and clock; a profile has
   no cookies or storage of another (the device's own traits are the same in all of them, as in Safari's profiles). Switch at
@@ -68,8 +68,8 @@ from then on every page it opens leaves from that server's address — or does n
   Safari's own user agent, and «location denied».
 - 🧪 **Leak test built in.** *Settings → Leak test* checks WebRTC, WebTransport, passkeys, the clock in every context, the
   location answer, and compares the address websites see with your server's.
-- 📶 **Wi-Fi or mobile, next to any VPN app.** On IPv6-only (NAT64) networks the app dials the address iOS synthesizes for
-  the server; both kinds were proven through a lab NAT64 (64:ff9b::/96), not yet on a physical iPhone in such a network.
+- 📶 **Wi-Fi or mobile.** The rest of the phone keeps its own connection. On IPv6-only (NAT64) networks the app dials the address iOS synthesizes for
+  the server; both connections were proven through a lab NAT64 (64:ff9b::/96), not yet on a physical iPhone in such a network.
 - 🤝 **Share access.** A key or QR code for another device; revoke it later from the app.
 - 🙈 **No accounts, no analytics, no ads, no servers of ours.** The app talks to your server and the sites you open.
 
@@ -85,7 +85,7 @@ from then on every page it opens leaves from that server's address — or does n
    a user with `sudo` works too.
 5. **Browse.** The profile turns green: «Sites see only &lt;your server&gt;». Open anything; check *Settings → Leak test*.
 
-Is SSH to your server blocked from your network? Open the server's **web console** in your hosting account and run the
+Can't reach your server over SSH from your network? Open the server's **web console** in your hosting account and run the
 installer this version of the app carries — fetched by its own checksum, so the console runs exactly that script or nothing:
 
 ```sh
@@ -100,22 +100,22 @@ It prints a key and a QR code to add in the app.
 flowchart LR
     P["Web page<br/>(WKWebView)"] -- "CONNECT,<br/>per-profile credential" --> G["LocalGate<br/>127.0.0.1"]
     G -- "only doors whose exit<br/>was verified" --> X["Xray core<br/>inside the app"]
-    X -- "HOP · Hysteria 2 + Salamander · UDP" --> S[("Your server")]
-    X -- "XHTTP · VLESS Encryption · TCP 443" --> S
+    X -- "UDP · Hysteria 2" --> S[("Your server")]
+    X -- "TCP 443 · VLESS over XHTTP" --> S
     S --> W["Websites see<br/>one address"]
 ```
 
-- **The tunnel runs inside the app**, not as a system VPN: only the browser enters it; other apps keep their own route, and
-  any VPN app on the phone keeps working.
-- **No way around it.** The core's only outbounds are your server's two kinds; private and local destinations are dropped;
+- **The connection lives inside the app**: only the browser uses it; other apps keep their own route, and the phone's
+  network settings are not touched.
+- **No way around the server.** The core's only outbounds are your server's two connections; private and local destinations are dropped;
   website names are resolved on the server.
-- **The exit is witnessed, per kind.** Before the first page, after every network change and every 10 minutes, the app asks a
-  public IP-echo service *through each kind* which address websites see. A kind that answers from another address closes the
+- **The exit is witnessed, per connection.** Before the first page, after every network change and every 10 minutes, the app asks a
+  public IP-echo service *through each connection* which address websites see. One that answers from another address closes the
   browser until you decide.
-- **LocalGate** is the one door WebKit knows. It lets a profile's pages through only that profile's verified kinds, keeps
-  what the browser sent until the site answers, and hands it to the other kind if the first one goes silent — never a request
+- **LocalGate** is the one door WebKit knows. It lets a profile's pages through only that profile's verified connections, keeps
+  what the browser sent until the site answers, and hands it to the other connection if the first one goes silent — never a request
   that could have reached the site already.
-- **The shield** removes, before any page script runs, the WebKit features that ignore a proxy (WebRTC, WebTransport, passkey
+- **The shield** removes, before any page script runs, the WebKit features that would go around the server (WebRTC, WebTransport, passkey
   lookups) and gives every frame and worker the server's clock. On iOS 26.4–26.x the app turns on WebKit's Lockdown restrictions.
 
 More: [architecture & code map](docs/ARCHITECTURE.md) · [leak measurements](docs/LEAKS.md) · [privacy](docs/PRIVACY.md) · [testing](docs/TESTING.md)
@@ -125,9 +125,9 @@ More: [architecture & code map](docs/ARCHITECTURE.md) · [leak measurements](doc
 | IP Browser makes sure that… | …and does not claim to |
 |---|---|
 | every page, its DNS and its downloads leave only from your server's address, or not at all | hide what you do from **your server's owner** (they can see which sites you connect to, not HTTPS content) |
-| each kind of the tunnel proved its exit address before carrying a page | make you anonymous like Tor: your device's traits (model, screen, fonts) are the same in every profile, as in Safari's profiles |
+| each connection proved its exit address before carrying a page | make you anonymous like Tor: your device's traits (model, screen, fonts) are the same in every profile, as in Safari's profiles |
 | profiles share nothing: cookies, storage, caches, tabs, history, credentials to the local gate | route iOS's own system services (updates, certificate checks) — no app can |
-| WebRTC, WebTransport and passkey lookups cannot reach the network around the tunnel | protect other apps on your phone |
+| WebRTC, WebTransport and passkey lookups cannot reach the network around the server | protect other apps on your phone |
 | the app's key on your server can run one management command — never a shell | — |
 | your password goes only to the server whose SSH key the app remembered at first contact, or to the exact new key you confirmed by its fingerprint | protect the very first connection to a new server beyond trusting it then, as SSH itself does |
 | history, favorites, tabs, the connection log and websites' data are excluded from iCloud and computer backups; a shared log hides addresses | — |
@@ -136,37 +136,34 @@ Found a way around it? Please report it privately: [SECURITY.md](SECURITY.md).
 
 ## How it compares
 
-| | IP Browser | VPN app | Browser + proxy setting | Tor (Onion Browser) |
-|---|:---:|:---:|:---:|:---:|
-| Only the browser uses the tunnel | ✅ | ❌ whole phone | ✅ | ✅ |
-| Never falls back to your own address | ✅ by design | ⚠️ depends on kill switch | ⚠️ WebRTC and fallbacks | ✅ |
-| One stable exit address and country | ✅ | ✅ | ✅ | ❌ changes by design |
-| Separate logins per country | ✅ profiles | ❌ | ❌ | ❌ |
-| Works next to another VPN app | ✅ | ❌ one VPN at a time | ✅ | ✅ |
-| Disguised against blocking | ✅ Salamander / XHTTP | some (AmneziaWG) | ❌ | with bridges |
-| Your own server, set up from the phone | ✅ | some (AmneziaVPN) | ❌ | ❌ |
+| | IP Browser | A browser with a server in its settings | Tor (Onion Browser) |
+|---|:---:|:---:|:---:|
+| Only the browser uses the server, the rest of the phone does not | ✅ | ✅ | ✅ |
+| Never falls back to your own address | ✅ by design | ⚠️ WebRTC and fallbacks | ✅ |
+| One stable address and country | ✅ | ✅ | ❌ changes by design |
+| Separate logins per server | ✅ profiles | ❌ | ❌ |
+| Your own server, set up from the phone | ✅ | ❌ | ❌ |
 
 ## Your server
 
 | What | How |
 |---|---|
 | Systems | Ubuntu 20.04 / 22.04 / 24.04, Debian 12 / 13 · x86_64 or arm64 · systemd · one public IPv4 |
-| Installs | Hysteria 2.14 (HOP), Xray-core 26.11 (XHTTP), Caddy 2.11 (the cover website and its Let's Encrypt certificate) — official releases, checksums pinned |
-| Opens | UDP 443 and 20000–29999 (HOP), TCP 443/80 (XHTTP) — only if a firewall is on, and only what it added |
+| Installs | Hysteria 2.14 (UDP), Xray-core 26.11 (TCP), Caddy 2.11 (a small website and its Let's Encrypt certificate) — official releases, checksums pinned |
+| Opens | UDP 443 and 20000–29999, TCP 443/80 — only if a firewall is on, and only what it added |
 | Manages | `ip-browser-manage add-device / revoke-device / list-devices / status / uninstall`; the app's SSH key can run only this |
 | Removes | `sudo ip-browser-manage uninstall` — services, files, the app's keys and exactly the firewall openings it made |
 
-XHTTP needs no domain: the server gets a Let's Encrypt certificate for its IP. If it cannot (TCP 80 closed by the provider or
-taken by another program), the server offers HOP only. Every error the installer can meet has its own message in
-the app (blocked SSH, wrong password, busy ports, no internet on the server…). Tested on clean Debian 12 and 13 guests, upgrades
+The TCP connection needs no domain: the server gets a Let's Encrypt certificate for its IP. If it cannot (TCP 80 closed by the
+provider or taken by another program), the server offers UDP only. Every error the installer can meet has its own message in
+the app (SSH not reachable, wrong password, busy ports, no internet on the server…). Tested on clean Debian 12 and 13 guests, upgrades
 from earlier versions included, and on real VPSes: [docs/SERVER.md](docs/SERVER.md).
 
 ## FAQ
 
-<details><summary><b>Is this a VPN?</b></summary>
+<details><summary><b>Does it change my phone's network?</b></summary>
 
-No. It is a browser with its own tunnel inside. iOS shows no VPN icon, other apps are not affected, and you can keep any VPN
-app on — the browser's pages still leave only from your server.
+No. Only the browser's pages go through your server; other apps and the phone's network settings are not affected.
 </details>
 
 <details><summary><b>Do I need to know Linux?</b></summary>
@@ -187,10 +184,10 @@ databases agree on — check it on ipinfo.io, ipapi.co and ifconfig.co before yo
 Yes. Websites see Safari on iPhone, not an unknown embedded browser.
 </details>
 
-<details><summary><b>What happens when my network blocks UDP?</b></summary>
+<details><summary><b>What happens when UDP does not get through my network?</b></summary>
 
-New pages move to XHTTP (TCP 443) by themselves, and the UDP kind joins again once it answers. If nothing gets through, the app
-says which kind fails from this network.
+New pages move to TCP 443 by themselves, and UDP joins again once it answers. If nothing gets through, the app says which
+connection fails from this network.
 </details>
 
 <details><summary><b>Can I use one server on several phones?</b></summary>

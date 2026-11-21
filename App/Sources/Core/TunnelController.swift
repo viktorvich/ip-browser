@@ -354,7 +354,7 @@ final class TunnelController {
     /// they are and keep asking; the core redials by itself. (Restarting the core here hung on a
     /// dead path: Streisand, 20.11.)
     private func noAnswer(_ results: [KindWitness], profile: ServerProfile, gen: Int, since started: Date) {
-        log("exit check: no answer through the tunnel (\(Int(Date().timeIntervalSince(started))) s)")
+        log("exit check: no answer through the server (\(Int(Date().timeIntervalSince(started))) s)")
         if case .verified(let ip) = state {
             state = .reconnecting(ip: ip)
             failingSince = Date()

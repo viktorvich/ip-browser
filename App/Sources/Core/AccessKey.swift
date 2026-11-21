@@ -15,7 +15,7 @@ enum AccessKey {
         var errorDescription: String? {
             switch self {
             case .invalid: return L("key.invalid")
-            case .unmasked(let what): return L("key.unmasked") + "\n\n" + L("key.unmasked.\(what)")
+            case .unmasked: return L("key.unmasked")
             }
         }
     }

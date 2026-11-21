@@ -9,10 +9,10 @@ The first public version.
 
 - **Browser**: start page with favorites and recent sites, tabs with previews, bookmarks and history on the phone, find on
   page, share, downloads; Russian and English.
-- **One exit**: an in-app Xray core with no direct outbound behind a loopback gate WebKit cannot bypass; every masked kind's
+- **One exit**: an in-app Xray core with no direct outbound behind a loopback gate WebKit cannot go around; every connection's
   exit is verified before it carries a page, again after each network change and every 10 minutes.
-- **Your own server from the phone**: SSH install of Hysteria 2 + Salamander (HOP) and VLESS Encryption over XHTTP behind a
-  Let's Encrypt cover site (XHTTP) on Ubuntu 22.04/24.04 and Debian 12/13; plain-word errors for every failure; a web-console
+- **Your own server from the phone**: SSH install of Hysteria 2 (UDP) and VLESS Encryption over XHTTP next to a
+  small website with a Let's Encrypt certificate (TCP) on Ubuntu 22.04/24.04 and Debian 12/13; plain-word errors for every failure; a web-console
   fallback that prints a key and a QR code.
 - **Failover while browsing**: a kind that goes silent hands new connections to the other kind; only bytes that cannot have
   had an effect at the site are repeated.

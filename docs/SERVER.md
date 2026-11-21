@@ -33,10 +33,10 @@ Every failure is reported as `@@error <code> <detail>`; the app shows the text b
 | Code | The app says | What to do |
 |---|---|---|
 | `dns` | The address does not exist. | Check the address; an IP address is the most reliable. |
-| `timeout` | The server does not answer. | The server is off, the address/port is wrong, or your network blocks it. Switch Wi-Fi ↔ mobile, use any VPN only for the installation, or run the command in the provider's web console. |
+| `timeout` | The server does not answer. | The server is off, the address/port is wrong, or your network does not reach it. Switch Wi-Fi ↔ mobile, or run the command in the provider's web console. |
 | `unreachable` | There is no route to the server. | Same as above. |
 | `refused` | The server answers, but SSH is closed on this port. | Use the SSH port from the provider's e-mail. |
-| `reset` | The connection is cut while SSH starts. | Typical for networks that block SSH to foreign servers: another network, a VPN for the installation, or the web console. |
+| `reset` | The connection is cut while SSH starts. | The network closed SSH to this server: another network, or the web console. |
 | `server_closed` | The server closed the connection after greeting. | The server itself refused: logins limited to some addresses or fail2ban. Wait 10 minutes or check the access settings. |
 | `password_off` | The server does not accept password logins. | Reinstall the OS with a root password, or enable `PasswordAuthentication yes`. |
 | `auth` | The server did not accept the login. | Check the user and the password. |
@@ -49,11 +49,11 @@ Every failure is reported as `@@error <code> <detail>`; the app shows the text b
 | `download`, `checksum` | A download failed / did not match its checksum. | Try again; a mismatch means the download is altered on the way — nothing was installed. |
 | `no_ipv4` | The server has no public IPv4 address. | A public IPv4 is required. |
 | `port_busy` | UDP 443 is used by another program. | Use a clean server or remove that program. |
-| `hop_start`, `core`, `firewall` | The tunnel did not start. | The detail shows the server's own log line. |
+| `hop_start`, `core`, `firewall` | The connection service did not start. | The detail shows the server's own log line. |
 | warning `web_ports_busy` | TCP 80/443 are taken: XHTTP is skipped. | Free the ports for the website front, or live with HOP only. |
 | warning `no_certificate` | No certificate for the IP: XHTTP is skipped. | The provider closes port 80 or the server is behind NAT. |
 
-After the installation the app checks each kind through its own door of the tunnel core. If none answers from your current network, it says so — for example *“HOP (UDP): no answer — UDP to the server does not get through from this network”* — and nothing goes out another way.
+After the installation the app checks each connection through its own door of the connection core. If none answers from your current network, it says so — for example *“UDP: no answer — UDP to the server does not get through from this network”* — and nothing goes out another way.
 
 ## Remove it
 
@@ -64,11 +64,11 @@ sudo /usr/local/sbin/ip-browser-manage uninstall     # or: sudo bash install.sh 
 ```
 
 **Addresses.** The address you type in the app is the one phones dial; the server may leave to the internet from another
-one (a VPS with two addresses, NAT). The cover site answers on both, each with its own Let's Encrypt certificate, and XHTTP is
+one (a VPS with two addresses, NAT). The website answers on both, each with its own Let's Encrypt certificate, and XHTTP is
 offered only once the address phones dial serves it.
 
-**Devices.** Revoking a device removes its tunnel access and, if that phone installed or reinstalled the server, its management key. The only device cannot be revoked (without a device the tunnel has no user): `uninstall` removes everything instead. A phone that revokes itself loses its profile on that phone too. A reinstall from the same phone retires that phone's previous device and key (`--retire-device`, `--retire-key`), so no forgotten second access stays behind.
+**Devices.** Revoking a device removes its connection access and, if that phone installed or reinstalled the server, its management key. The only device cannot be revoked (without a device the server has no user): `uninstall` removes everything instead. A phone that revokes itself loses its profile on that phone too. A reinstall from the same phone retires that phone's previous device and key (`--retire-device`, `--retire-key`), so no forgotten second access stays behind.
 
-**Servers installed before 21.11.2026.** They kept no records. The first run of this installer there (a reinstall, or any management command) brings them up to date once: the app keys of that time, which could run any command and belong to no device, are removed (their phones keep the tunnel; to manage the server again a phone installs again, and the app says so); the firewall openings the old installer certainly made (UDP 443, the hop range, and TCP 443/80 when listed after them) are recorded as its own; an opening that may be the administrator's is kept, and `uninstall` names it (`"kept": [...]`).
+**Servers installed before 21.11.2026.** They kept no records. The first run of this installer there (a reinstall, or any management command) brings them up to date once: the app keys of that time, which could run any command and belong to no device, are removed (their phones keep their connection; to manage the server again a phone installs again, and the app says so); the firewall openings the old installer certainly made (UDP 443, the hop range, and TCP 443/80 when listed after them) are recorded as its own; an opening that may be the administrator's is kept, and `uninstall` names it (`"kept": [...]`).
 
 **Tested** on clean Debian 12 and 13 guests by `Server/test/lifecycle.sh` (`tools/vm-test.sh`): an upgrade from the installer of 20.11.2026 by an ordinary sudo user, and a fresh install by root — keys, revocation rules, the HOP-only web front and a firewall after `uninstall` identical to before.

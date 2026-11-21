@@ -122,7 +122,7 @@ setTimeout(() => {
         : ownData === 'bad' ? bad(T('Данные сайтов смешаны с другим профилем', 'Site data is mixed with another profile'))
         : ownData === 'unknown' ? open(T('Данные сайтов: хранилище страницы недоступно — не измерено', 'Site data: the page storage is unavailable — not measured')) : '')
     + row(T('Проверено окружений: ', 'Contexts checked: ') + ctx.length + T('; WebRTC-кандидатов: ', '; WebRTC candidates: ') + R.candidates.length)
-    + row('iOS ' + (FACTS.ios || '?') + (FACTS.strict === '1' ? T(' · строгий режим', ' · strict mode') : '') + (wtSafe ? T(' · WebTransport через прокси WebKit не пускает', ' · WebKit refuses WebTransport through a proxy') : ''))
+    + row('iOS ' + (FACTS.ios || '?') + (FACTS.strict === '1' ? T(' · строгий режим', ' · strict mode') : '') + (wtSafe ? T(' · WebTransport мимо сервера не уходит', ' · WebTransport cannot go past the server') : ''))
     + (exposed.length ? bad(T('Доступно в: ', 'Available in: ') + exposed.join(', ')) : '');
   document.getElementById('detail').textContent = JSON.stringify(R, null, 1);
   R.done = true;

@@ -1,1 +1,1 @@
-Browse from your own server
+Browse from your own IP

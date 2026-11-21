@@ -1,24 +1,24 @@
-IP Browser opens every website through your own server. Websites see one address — your server's — and nothing else leaves your phone.
+IP Browser opens websites from your own server. Websites see one address — your server's IP — wherever you are and whatever network you use.
+
+Handy when a service lets in only one IP address, or when you want your accounts to always see the same address.
 
 A REAL BROWSER
-A start page with favorites and recent sites, tabs with page previews, bookmarks and history (kept on your phone only), find on page and sharing. Your server, protection and data controls live in Settings.
+A start page with favorites and recent sites, tabs with page previews, bookmarks and history (kept on your phone only), find on page and sharing. Your server and data controls live in Settings.
 
-SET UP YOUR SERVER IN A FEW TAPS
-Rent any small VPS with Ubuntu or Debian, enter its address and password, tap Install. IP Browser connects to it, sets everything up and forgets the password. Or add a key someone gave you, as text or a QR code.
+YOUR SERVER IN A FEW TAPS
+Rent any small VPS with Ubuntu or Debian, enter its address and password, tap Install. IP Browser sets everything up and forgets the password. Or add a server someone gave you, as a key or a QR code.
 
 ONE ADDRESS, ALWAYS
-• Pages, their name lookups and downloads go only through your server.
-• If the server cannot be reached, the browser stops — it never falls back to your own connection.
+• Pages, their address lookups and downloads load only from your server.
+• If the server cannot be reached, the browser waits: it never switches to your own connection.
 • Before the first page, IP Browser checks which address websites see.
+• Websites see your server's time zone.
 • Works on Wi-Fi or mobile data; the rest of your phone keeps its own connection.
 
-A DISGUISED CONNECTION
-Your server gets two kinds of encrypted, disguised connection, and the app picks the one that works: a fast UDP tunnel with port hopping, and a TCP tunnel behind a small real website. If your network blocks one, the app tells you which and why.
-
-BUILT-IN LEAK TEST
-WebRTC, WebTransport and passkey lookups can bypass a browser's proxy. IP Browser removes them in every frame and lets you check the result: Settings → Leak test.
+CHECK IT YOURSELF
+Settings → Leak test shows the address and time zone websites see.
 
 NO ACCOUNTS, NO ANALYTICS
-No sign-up, no tracking, no ads, and no servers of ours: the app talks to your server and the websites you open.
+No sign-up, no tracking, no ads, and no servers of ours: the app talks only to your server and the websites you open.
 
 Open source: github.com/viktorvich/ip-browser

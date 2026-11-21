@@ -28,7 +28,7 @@ website data stay on the phone; the exit checks and time-zone lookups go through
 services and carry nothing about the person. `App/PrivacyInfo.xcprivacy` declares no collected data and no tracking.
 
 ## 4. Encryption (export compliance)
-The tunnel to the person's server uses standard algorithms only (TLS 1.3, QUIC, X25519/ML-KEM-768 in VLESS Encryption,
+The connection to the person's server uses standard algorithms only (TLS 1.3, QUIC, X25519/ML-KEM-768 in VLESS Encryption,
 the Salamander obfuscation over them), implemented in the app (Xray-core, Hysteria) in addition to Apple's; nothing
 proprietary. Apple treats that as exempt from export documentation **unless the app is sold in France**: App Store Connect
 refuses an encryption declaration «unless either containsProprietaryCryptography is True or containsThirdPartyCryptography

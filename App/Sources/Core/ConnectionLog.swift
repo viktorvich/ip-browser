@@ -65,7 +65,7 @@ final class ConnectionLog: ObservableObject {
             separator: "\n")
     }
 
-    /// «Wi-Fi», «mobile», «VPN + mobile», «no network» — the route the core's UDP takes now.
+    /// «Wi-Fi», «mobile», «other + mobile», «no network» — the route the core's UDP takes now.
     static func describe(_ path: NWPath) -> String {
         guard path.status == .satisfied else { return "no network (\(path.status))" }
         func name(_ t: NWInterface.InterfaceType) -> String {
@@ -74,7 +74,7 @@ final class ConnectionLog: ObservableObject {
             case .cellular: return "mobile"
             case .wiredEthernet: return "wired"
             case .loopback: return "loopback"
-            default: return "VPN"
+            default: return "other"
             }
         }
         var seen: [String] = []

@@ -58,8 +58,8 @@ struct ServerProfile: Codable, Identifiable, Equatable {
 
     var kinds: [String] {
         links.compactMap { link in
-            if link.hasPrefix("hy2://") || link.hasPrefix("hysteria2://") { return "HOP" }
-            if link.hasPrefix("vless://") { return "XHTTP" }
+            if link.hasPrefix("hy2://") || link.hasPrefix("hysteria2://") { return "UDP" }
+            if link.hasPrefix("vless://") { return "TCP" }
             return nil
         }
     }

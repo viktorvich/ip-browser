@@ -1,1 +1,1 @@
-private browser,proxy,own server,vps,ip,tunnel,privacy,webrtc,leak test,hysteria,secure
+web browser,ip address,own ip,static ip,fixed ip,dedicated ip,own server,vps,server,bookmarks,tabs

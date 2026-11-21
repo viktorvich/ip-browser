@@ -69,7 +69,7 @@ enum XrayEngine {
         return list
     }
 
-    static func kind(of link: String) -> String { link.hasPrefix("vless://") ? "XHTTP (TCP)" : "HOP (UDP)" }
+    static func kind(of link: String) -> String { link.hasPrefix("vless://") ? "TCP" : "UDP" }
 
     static func configuration(links: [String], user: String, password: String, doorPorts: [Int]) throws -> String {
         // On an IPv6-only network the server's IPv4 address is dialed through its synthesized IPv6 (NAT64).
