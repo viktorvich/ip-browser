@@ -16,7 +16,7 @@
 		<key>CFBundleURLName</key><string>app.ipbrowser.key</string>
 		<key>CFBundleURLSchemes</key><array><string>ipbrowser</string></array>
 	</dict></array>
-	<key>ITSAppUsesNonExemptEncryption</key><true/>
+	<key>ITSAppUsesNonExemptEncryption</key><false/>
 	<key>LSRequiresIPhoneOS</key><true/>
 	<key>NSAppTransportSecurity</key>
 	<dict><key>NSAllowsArbitraryLoadsInWebContent</key><true/></dict>

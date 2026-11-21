@@ -5,6 +5,7 @@
 # (its lab hooks open the screens) and an access key of the server the screenshots should show - the review
 # server, whose address may be public.
 #   tools/screenshots.sh <IPBrowser.app (Debug, simulator)> <key file> <out dir> [website shown in the second shot]
+# <key file>.<ru|en>, when present, is used for that language (a server name in the reader's language).
 set -euo pipefail
 APP=$1; KEY=$2; OUT=$3; SITE=${4:-https://en.wikipedia.org/wiki/Tashkent}
 RUNTIME=$(xcrun simctl list runtimes | sed -n 's/^iOS .* - \(com\.apple\.CoreSimulator\.SimRuntime\.iOS-[0-9-]*\)$/\1/p' | tail -1)
@@ -22,7 +23,8 @@ for lang in ru en; do
   xcrun simctl status_bar "$dev" override --time 9:41 --dataNetwork wifi --wifiBars 3 --cellularBars 4 --batteryState charged --batteryLevel 100
   xcrun simctl install "$dev" "$APP"
   C=$(xcrun simctl get_app_container "$dev" app.ipbrowser.pos2 data)
-  mkdir -p "$C/Documents"; cp "$KEY" "$C/Documents/import-key.txt"
+  k=$KEY; [ -f "$KEY.$lang" ] && k=$KEY.$lang
+  mkdir -p "$C/Documents"; cp "$k" "$C/Documents/import-key.txt"
   L=(-AppleLanguages "($lang)" -AppleLocale "$locale")
   d="$OUT/$lang/$device"; mkdir -p "$d"
   shot "$dev" "$d/1-home.png" 25 "${L[@]}"

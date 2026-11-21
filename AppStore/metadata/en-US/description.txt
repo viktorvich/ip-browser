@@ -10,7 +10,7 @@ ONE ADDRESS, ALWAYS
 • Pages, their name lookups and downloads go only through your server.
 • If the server cannot be reached, the browser stops — it never falls back to your own connection.
 • Before the first page, IP Browser checks which address websites see.
-• Works next to any other VPN app, on Wi-Fi or mobile data.
+• Works on Wi-Fi or mobile data; the rest of your phone keeps its own connection.
 
 A DISGUISED CONNECTION
 Your server gets two kinds of encrypted, disguised connection, and the app picks the one that works: a fast UDP tunnel with port hopping, and a TCP tunnel behind a small real website. If your network blocks one, the app tells you which and why.
