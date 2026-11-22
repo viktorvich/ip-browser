@@ -10,7 +10,8 @@ import WebKit
 /// WebKit's own Lockdown restrictions for the page (no JIT, no WebRTC/WebTransport
 /// in the engine itself), the strongest public switch Apple offers.
 enum Shield {
-    static let version = "shield-3"
+    static let version = "shield-4"
+    static let ruleListID = "ipbrowser-boundary-v2"
 
     /// iOS 26.4 introduced WebTransport, and its WebKit opens WebTransport's QUIC
     /// connection straight from the device, ignoring the data store's proxy - from page
@@ -179,7 +180,12 @@ enum Shield {
         ]
         var filters = hosts.flatMap { h in [":", "/", "$"].map { "^[a-z]+://" + h + $0 } }
         filters += prefixes.map { "^[a-z]+://" + $0 }
-        let rules = filters.map { ["trigger": ["url-filter": $0], "action": ["type": "block"]] }
+        var rules: [[String: Any]] = filters.map { ["trigger": ["url-filter": $0], "action": ["type": "block"]] }
+        // WebKit classifies DNS-prefetch and preconnect as Ping before it invokes the
+        // system resolver (FrameLoader::prefetchDNSIfNeeded, WebKit ce84da3). Block in
+        // the engine, including parser-created links/iframes: removing DOM nodes is too late.
+        // This also disables hyperlink auditing and sendBeacon; regular fetch/XHR still work.
+        rules.append(["trigger": ["url-filter": ".*", "resource-type": ["ping"]], "action": ["type": "block"]])
         return String(data: try! JSONSerialization.data(withJSONObject: rules), encoding: .utf8)!
     }()
 }

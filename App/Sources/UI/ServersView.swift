@@ -66,6 +66,9 @@ struct ServersView: View {
                             }.tint(.blue)
                         }
                         .contextMenu {
+                            Button { duplicate(p) } label: {
+                                Label(L("profiles.copy"), systemImage: "doc.on.doc")
+                            }
                             Button {
                                 newName = p.title
                                 renaming = p
@@ -138,6 +141,9 @@ struct ServersView: View {
         activeID = p.id
         ProfileStore.requestSwitch(to: p.id)
         profiles = ProfileStore.shared.profiles
+    }
+    private func duplicate(_ p: ServerProfile) {
+        do { activate(try ProfileStore.shared.duplicate(p.id)) } catch { self.error = error.localizedDescription }
     }
     private func remove(_ p: ServerProfile) {
         try? ProfileStore.shared.remove(p.id)  // the browser deletes its pages and data

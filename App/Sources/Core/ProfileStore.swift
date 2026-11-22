@@ -13,48 +13,54 @@ final class ProfileStore {
     static let switchRequest = Notification.Name("ProfileStore.switch")
     /// The WebKit store every page used before profiles were separate (build ≤ 16).
     static let legacyStoreID = UUID(uuidString: "5B0E8C1C-6B2E-4D57-9E0A-1F7A9C3D2B10")!
-    private let service = "app.ipbrowser.profiles"
+    private let service: String
+    private let defaults: UserDefaults
     private let account = "v1"
     private let activeKey = "activeProfile"
 
     private(set) var profiles: [ServerProfile] = []
     var activeID: UUID? {
-        get { UserDefaults.standard.string(forKey: activeKey).flatMap(UUID.init) }
-        set { UserDefaults.standard.set(newValue?.uuidString, forKey: activeKey) }
+        get { defaults.string(forKey: activeKey).flatMap(UUID.init) }
+        set { defaults.set(newValue?.uuidString, forKey: activeKey) }
     }
     var active: ServerProfile? { profiles.first { $0.id == activeID } ?? profiles.first }
 
-    init() {
+    init(service: String = "app.ipbrowser.profiles", defaults: UserDefaults = .standard) {
+        self.service = service
+        self.defaults = defaults
         // iOS keeps Keychain items after an app is deleted; UserDefaults go with it.
         // A reinstalled app starts clean, as a person expects after «Delete App».
-        if !UserDefaults.standard.bool(forKey: "installMarker") {
+        if !defaults.bool(forKey: "installMarker") {
             SecItemDelete(query as CFDictionary)
-            UserDefaults.standard.set(true, forKey: "installMarker")
+            defaults.set(true, forKey: "installMarker")
         }
-        // One entry per key: older builds could store the same key twice.
-        var seen = Set<Set<String>>()
-        profiles = ((try? load()) ?? []).filter { seen.insert(Set($0.links)).inserted }
+        // Browser identity is its UUID, never its credentials or exit address.
+        // Explicit copies share a server but must survive a restart as separate browsers.
+        var seen = Set<UUID>()
+        profiles = ((try? load()) ?? []).filter { seen.insert($0.id).inserted }
         // Build 17: every profile became a separate browser. The profile in use until now
         // keeps the old shared website data, favourites and history; the others start clean.
-        if !UserDefaults.standard.bool(forKey: "profilesSeparate") {
+        if !defaults.bool(forKey: "profilesSeparate") {
             if var a = active, !profiles.contains(where: { $0.storeID == Self.legacyStoreID }) {
                 a.storeID = Self.legacyStoreID
                 if (try? upsert(a)) != nil { BrowserLibrary.adoptLegacy(into: a.id) }
             }
-            UserDefaults.standard.set(true, forKey: "profilesSeparate")
+            defaults.set(true, forKey: "profilesSeparate")
         }
     }
 
     /// Ask the browser to switch to a profile (pages, data and tunnel together).
     static func requestSwitch(to id: UUID) { NotificationCenter.default.post(name: switchRequest, object: id) }
 
-    /// The profile a new key or installation belongs to: the same links, or the same exit
-    /// address (one exit = one profile: a new key for it — new passwords, another kind —
-    /// updates that profile, whose sign-ins and website data stay).
+    /// Import updates one profile, retaining its browser data. If there are copies on
+    /// the same server, prefer the active matching profile; never merge their stores.
     func existing(for profile: ServerProfile) -> ServerProfile? {
-        profiles.first { $0.id == profile.id }
-            ?? profiles.first { Set($0.links) == Set(profile.links) }
-            ?? profile.exitIPv4.flatMap { exit in profiles.first { $0.exitIPv4 == exit } }
+        if let sameID = profiles.first(where: { $0.id == profile.id }) { return sameID }
+        let exact = profiles.filter { Set($0.links) == Set(profile.links) }
+        if !exact.isEmpty { return exact.first { $0.id == activeID } ?? exact.first }
+        guard let exit = profile.exitIPv4 else { return nil }
+        let sameExit = profiles.filter { $0.exitIPv4 == exit }
+        return sameExit.first { $0.id == activeID } ?? sameExit.first
     }
 
     /// Adds or updates a profile (see existing(for:)); returns the stored profile.
@@ -78,6 +84,27 @@ final class ProfileStore {
         try save(list)
         profiles = list
         return stored
+    }
+
+    /// Copy only server access, with a fresh browser identity. No website data, tabs,
+    /// library, or SSH administration key is copied; deletion remains local to this copy.
+    @discardableResult
+    func duplicate(_ id: UUID) throws -> ServerProfile {
+        guard let source = profiles.first(where: { $0.id == id }) else {
+            throw AppError.message(L("profiles.missing"))
+        }
+        let base = String(format: L("profiles.copy.name"), source.title)
+        var name = base
+        var suffix = 2
+        while profiles.contains(where: { $0.title == name }) {
+            name = "\(base) \(suffix)"
+            suffix += 1
+        }
+        let copy = source.isolatedCopy(named: name)
+        let list = profiles + [copy]
+        try save(list)  // deliberately not upsert: equal credentials must not merge copies
+        profiles = list
+        return copy
     }
 
     func remove(_ id: UUID) throws {

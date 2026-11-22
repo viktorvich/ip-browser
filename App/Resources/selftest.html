@@ -100,14 +100,14 @@ setTimeout(() => {
   // The address the site saw must be the profile's own exit, not just any answer.
   const expected = FACTS.exit || null;
   const exitState = !R.exit ? 'none' : (!expected || R.exit === expected ? 'ok' : 'bad');
-  R.verdict = {exposed, leaks: leaks.length, candidates: R.candidates.length, contexts: ctx.length, exit: R.exit || null, expected, exitState, offClock, geo: R.geo, safari, ownData};
-  const clean = exposed.length === 0 && R.candidates.length === 0 && exitState !== 'bad';
+  R.verdict = {exposed, leaks: leaks.length, candidates: R.candidates.length, contexts: ctx.length, dnsPrefetchRuleInstalled: FACTS.dnsGuard === '1', exit: R.exit || null, expected, exitState, offClock, geo: R.geo, safari, ownData};
+  const clean = exposed.length === 0 && R.candidates.length === 0 && exitState !== 'bad' && FACTS.dnsGuard === '1';
   const ok = t => '<div class="ok row">✓ ' + t + '</div>', bad = t => '<div class="bad row">✗ ' + t + '</div>',
         open = t => '<div class="row" style="color:#c77700">? ' + t + '</div>', row = t => '<div class="row">' + t + '</div>';
   const verdict = !clean ? bad(exitState === 'bad' ? T('Сайт увидел не адрес сервера', 'The site saw an address that is not the server\'s') : T('Найдены открытые пути', 'Open paths found'))
-    : exitState === 'ok' ? ok(T('Утечек не найдено', 'No leaks found'))
-    : open(T('Утечек не найдено, но сервер сейчас не отвечает — адрес выхода проверить нельзя. Ничего не уходит мимо сервера.',
-             'No leaks found, but the server does not answer now, so the exit address cannot be checked. Nothing leaves past the server.'));
+    : exitState === 'ok' ? ok(T('Локальная проверка пройдена', 'Local checks passed'))
+    : open(T('Сервер сейчас не отвечает — адрес выхода не подтверждён.',
+             'The server does not answer now; the exit address is not confirmed.'));
   document.getElementById('summary').innerHTML = verdict
     + row(T('Адрес выхода: ', 'Exit address: ') + '<b>' + (R.exit || '—') + '</b>'
         + (exitState === 'ok' && expected ? T(' — адрес сервера профиля', ' — the profile\'s server') : '')
@@ -122,6 +122,10 @@ setTimeout(() => {
         : ownData === 'bad' ? bad(T('Данные сайтов смешаны с другим профилем', 'Site data is mixed with another profile'))
         : ownData === 'unknown' ? open(T('Данные сайтов: хранилище страницы недоступно — не измерено', 'Site data: the page storage is unavailable — not measured')) : '')
     + row(T('Проверено окружений: ', 'Contexts checked: ') + ctx.length + T('; WebRTC-кандидатов: ', '; WebRTC candidates: ') + R.candidates.length)
+    + (FACTS.dnsGuard === '1' ? ok(T('Блокировка DNS-prefetch включена в WebKit', 'WebKit DNS-prefetch blocking is enabled'))
+        : bad(T('Блокировка DNS-prefetch не включена', 'DNS-prefetch blocking is not enabled')))
+    + row(T('DNS проверяется отдельно на внешнем сайте: ', 'Check DNS separately on an external site: ')
+        + '<a href="https://leaks.psylo.app">' + T('Проверить DNS', 'Check DNS') + '</a>')
     + row('iOS ' + (FACTS.ios || '?') + (FACTS.strict === '1' ? T(' · строгий режим', ' · strict mode') : '') + (wtSafe ? T(' · WebTransport мимо сервера не уходит', ' · WebTransport cannot go past the server') : ''))
     + (exposed.length ? bad(T('Доступно в: ', 'Available in: ') + exposed.join(', ')) : '');
   document.getElementById('detail').textContent = JSON.stringify(R, null, 1);

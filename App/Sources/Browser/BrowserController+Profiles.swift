@@ -63,7 +63,7 @@ extension BrowserController {
     }
 
     func openSession(_ p: ServerProfile) {
-        guard let store = store(for: p) else {
+        guard let rules, let store = store(for: p) else {
             Self.log.error("IPB no proxy for the profile store")
             return
         }
@@ -75,7 +75,7 @@ extension BrowserController {
         session = s
         s.appliedZone = Region.shared.zone(for: p.exitIPv4)
         if shieldOn { Shield.install(into: c.userContentController, zone: s.appliedZone) }
-        if let rules { c.userContentController.add(rules) }
+        c.userContentController.add(rules)
         startHost.rootView = StartPageView(model: startModel, library: s.library)
         // The tabs this profile had: each loads its address when it is shown.
         let saved = s.library.savedTabs

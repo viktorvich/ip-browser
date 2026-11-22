@@ -232,6 +232,16 @@ final class BrowserController: UIViewController, UITextFieldDelegate {
         barModel.install = { [weak self] in self?.presentInstall() }
         barModel.haveKey = { [weak self] in self?.presentImport() }
         barModel.manage = { [weak self] in self?.showServers() }
+        barModel.duplicate = { [weak self] id in
+            do {
+                let copy = try ProfileStore.shared.duplicate(id)
+                self?.switchProfile(to: copy.id)
+            } catch {
+                let alert = UIAlertController(title: L("error.title"), message: error.localizedDescription, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self?.present(alert, animated: true)
+            }
+        }
         startModel.acceptExit = { ip in TunnelController.shared.acceptExit(ip) }
         startModel.retry = { TunnelController.shared.restartCore() }
     }
@@ -349,9 +359,15 @@ final class BrowserController: UIViewController, UITextFieldDelegate {
         applyLabSwitches()
         #endif
         WKContentRuleListStore.default().compileContentRuleList(
-            forIdentifier: "ipbrowser-local-v1", encodedContentRuleList: Shield.contentRules
+            forIdentifier: Shield.ruleListID, encodedContentRuleList: Shield.contentRules
         ) { [weak self] list, _ in
             guard let self else { return }
+            guard let list else {
+                let alert = UIAlertController(title: L("error.title"), message: L("protection.failed"), preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(alert, animated: true)
+                return
+            }
             self.rules = list
             self.switchProfile(to: ProfileStore.shared.active?.id, force: true)
             if ProcessInfo.processInfo.arguments.contains("-selftest") { self.pendingSelfTest = true }
@@ -504,6 +520,7 @@ final class BrowserController: UIViewController, UITextFieldDelegate {
         // The page cannot see the iOS version (WebKit freezes it in the user agent).
         let facts =
             "#ios=\(Shield.iosVersion)&strict=\(strict ? 1 : 0)&wtProxySafe=\(ProcessInfo.processInfo.operatingSystemVersion.majorVersion >= 27 ? 1 : 0)"
+            + "&dnsGuard=\(rules != nil ? 1 : 0)"
             + "&zone=\(appliedZone ?? "")&phone=\(TimeZone.current.identifier)"
             + "&profile=\(session.map { String($0.profile.uuidString.prefix(8)) } ?? "")"
             + "&pname=\((ProfileStore.shared.active?.title ?? "").addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? "")"

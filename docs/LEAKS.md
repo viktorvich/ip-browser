@@ -14,7 +14,7 @@ iOS lets a browser route WebKit through a proxy (`WKWebsiteDataStore.proxyConfig
 |---|---|---|
 | WebRTC | iOS 26.4 and 27.2: `srflx` candidate with the device's real address while websites saw the server | Removed in every frame before page scripts: 0 candidates (iOS 26.3.1 device, 26.4, 27.2) |
 | WebTransport | iOS 26.4: QUIC Initial packets from the device straight to the target, from a page **and from a worker**. iOS 27.0 and 27.2: rejected through a proxy, no packet | Removed in every frame; on iOS 26.4–26.x the app turns on WebKit Lockdown, which removes it from the engine, workers included: 0 packets |
-| DNS prefetch | No leak observed (iOS 26.4, 27.2) | — |
+| DNS prefetch | Build 29 on physical iOS 26.3.1: unique page domains go to the home DNS, with and without strict mode; ordinary HTTPS still uses the server | From build 30, a native WebKit `ping` content rule blocks DNS-prefetch and preconnect before the resolver. Rules must compile before a profile gets a WebView. This also blocks auditing pings and sendBeacon; normal fetch/XHR stay available |
 | Kinds of one server | Before 21.11.2026 the core balanced the kinds by ping and only the chosen path was witnessed; after a network change pages were let through before the new core was witnessed | Every kind is witnessed through its own door; pages pass only through kinds whose exit is the server's, and a new core starts closed (pages wait up to 12 s). A kind that stops answering while browsing hands new connections to the other kind of the same server — never to another way out |
 | WebAuthn ROR | iOS 27.2: request went through the proxy | Passkeys switched off (`PublicKeyCredential` removed) |
 | Website DNS | Resolved by the server (the test showed the server's country resolver) | — |
@@ -27,6 +27,8 @@ Not covered by any app: iOS system services (software updates, certificate statu
 
 ## Check it yourself
 
-In the app: **Settings → Leak test**. It shows the exit address, the number of WebRTC candidates, every frame where a leaking feature would be reachable, the clock pages see in every context and the location answer.
+In the app: **Settings → Leak test**. It reports the scope of the local checks and whether the DNS blocking rules are installed; its external DNS-test link opens through the active profile. The local page does not measure external DNS by itself. It shows the exit address, the number of WebRTC candidates, every frame where a leaking feature would be reachable, the clock pages see in every context and the location answer.
 
 Not covered: a site's service worker, or a worker loaded from a script file, sees the phone's own time zone (WebKit runs no page script there). Accept-Language and `navigator.language` stay the phone's language: they say which language you read, not where you are.
+
+Copies use a new profile UUID and a new persistent WebKit data store even when their server credentials match. Cookies, local storage, caches, service workers, browser history and tabs are not copied. Copies share the exit IP and device/browser characteristics: this is data isolation, not a guarantee that a site cannot correlate visits.

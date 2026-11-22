@@ -1,7 +1,7 @@
 import Foundation
 import Network
 
-/// One server = one exit address = one browser profile. Every outbound of a profile ends
+/// One browser profile has one exit; several isolated profiles can share that exit. Every outbound ends
 /// on the same machine, so switching between its masked kinds never changes the exit IP.
 /// Each profile is a separate browser like a Safari profile: its own website data
 /// (cookies, storage, caches, service workers), tabs, favourites and history, its own
@@ -28,6 +28,10 @@ struct ServerProfile: Codable, Identifiable, Equatable {
     var storeID: UUID?
 
     var dataStoreID: UUID { storeID ?? id }
+
+    func isolatedCopy(named name: String) -> ServerProfile {
+        ServerProfile(name: name, links: links, exitIPv4: exitIPv4, origin: .imported)
+    }
 
     /// What the profile bar shows: the person's own name, or the exit's country when the
     /// name is only an address («Финляндия», «Латвия»).

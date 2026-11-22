@@ -241,3 +241,11 @@
 "problem.no_device.title" = "The server has no such device.";
 "problem.no_device.advice" = "It may have been revoked already. Open the list again.";
 "warn.legacy_keys" = "Management keys that belong to no device on this server were removed (phones that installed it with an earlier version): such a phone keeps its connection and installs again to manage the server.";
+
+"profiles.copy" = "Copy profile";
+
+"profiles.copy.name" = "%@ — copy";
+
+"profiles.missing" = "This profile has been removed.";
+
+"protection.failed" = "Browser protection could not start. Pages are blocked. Restart the app.";

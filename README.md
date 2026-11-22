@@ -253,3 +253,7 @@ IP Browser is open source and dual-licensed:
 Copyright © 2026 viktorvich. The name "IP Browser" and its icon are not covered by either license: a modified version must
 use its own name and icon. Versions published before 21 November 2026 carry the MIT License. Bundled components keep their own
 licenses (MPL-2.0, MIT, Apache-2.0, BSD, LGPL-3.0 with a static-linking exception).
+
+## Profile copies
+
+Hold a profile name → **Copy profile** (also in the profiles list). The copy starts with separate cookies, sign-ins, website storage, history and tabs; the original keeps its data. Server connection settings are copied, SSH administration is not. The exit IP stays the same, so sites may still correlate visits by IP and other signals.

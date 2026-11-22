@@ -15,6 +15,7 @@ final class ProfileBarModel: ObservableObject {
     var install: () -> Void = {}
     var haveKey: () -> Void = {}
     var manage: () -> Void = {}
+    var duplicate: (UUID) -> Void = { _ in }
 }
 
 /// Profiles on top of the browser, like Safari's profiles: one per server, each a separate
@@ -83,6 +84,9 @@ struct ProfileBar: View {
         .accessibilityIdentifier("profile:" + item.title)
         .accessibilityAddTraits(on ? .isSelected : [])
         .contextMenu {
+            Button { model.duplicate(item.id) } label: {
+                Label(L("profiles.copy"), systemImage: "doc.on.doc")
+            }
             Button {
                 model.manage()
             } label: {
