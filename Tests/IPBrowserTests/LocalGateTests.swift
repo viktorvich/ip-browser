@@ -225,16 +225,22 @@ final class LocalGateTests: XCTestCase {
 
     /// A door that closes before the site answered: the same bytes go through the next door at once.
     func testClosingDoorHandsTheRequestOver() async throws {
-        let (_, good) = try await core([(.closes, 0.5), (.answers, 1.0)]).pair
+        let (closing, good) = try await core([(.closes, 0.5), (.answers, 1.0)]).pair
+        let reported = expectation(description: "the closed door is reported")
+        gate.upstreamFailure = { port in
+            if port == closing.port { reported.fulfill() }
+        }
         let (client, head) = await connect("example.com:80")
         XCTAssertTrue(head.hasPrefix("HTTP/1.1 200"), head)
         let request = Data("GET / HTTP/1.1\r\nHost: example.com\r\n\r\n".utf8)
-        let sent = Date()
         client.send(request)
+        // Plain HTTP cannot use the TLS patience timer: success here requires handling
+        // the first door's close. Bound the operation, not the shared runner's scheduling.
         let answer = await client.receive(within: 4)
         XCTAssertEqual(answer, Data("ANSWER:".utf8) + request)
-        XCTAssertLessThan(Date().timeIntervalSince(sent), 1.2)
-        XCTAssertEqual(good.received, request, "the request reached the site once")
+        XCTAssertEqual(closing.received, request, "the first door received the request before closing")
+        XCTAssertEqual(good.received, request, "the replacement door received the request exactly once")
+        await fulfillment(of: [reported], timeout: 4)
         client.close()
     }
 

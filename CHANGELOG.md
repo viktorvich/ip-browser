@@ -1,6 +1,17 @@
 # Changelog
 
-## 1.0.0 — unreleased (App Store submission pending)
+## 1.0.1 — private test build 30 (public release held)
+
+- Copy a profile from its context menu to create an independent browser on the same server. Cookies, website storage,
+  tabs, favorites and history stay separate, including after restart. Copies do not inherit server administration keys.
+- Block WebKit DNS-prefetch/preconnect through native content rules before a resolver request is sent. This also blocks
+  link auditing and sendBeacon. Regular page loads, fetch and XHR remain available.
+- Require the protection rules before opening a page. Describe the embedded test as a local check and link to an external
+  DNS test instead of treating JavaScript checks as proof of the network path.
+- Physical iPhone Air acceptance covers both regional exits over Wi-Fi and cellular, with Stash connected and disconnected.
+  Packet capture confirms the DNS-prefetch bypass is absent in those tests; the old iPhone Tashkent app reproduced it.
+
+## 1.0.0 — App Store build 29
 
 The first public version.
 

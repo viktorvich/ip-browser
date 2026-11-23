@@ -1,1 +1,1 @@
-First release.
+Copy profiles with separate website data, sign-ins, tabs and history. Fixed WebKit DNS-prefetch bypassing the server connection. Clarified the built-in protection check.
